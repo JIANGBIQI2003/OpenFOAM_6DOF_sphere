@@ -1,0 +1,92 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2406                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+libs            (overset fvMotionSolvers);
+
+
+application     overPimpleDyMFoam;
+
+startFrom       startTime;
+
+startTime       0;
+
+stopAt          endTime;
+
+endTime         2.5;
+
+deltaT          0.001;
+
+//writeControl    timeStep;
+//writeInterval   5;
+
+writeControl    adjustable;
+writeInterval   0.005;
+
+purgeWrite      0;
+
+writeFormat     ascii;
+
+writePrecision  10;
+
+writeCompression off;
+
+timeFormat      general;
+
+timePrecision   6;
+
+runTimeModifiable true;
+
+adjustTimeStep  yes;
+
+maxCo           0.91;
+maxDeltaT       1e-4;
+
+
+functions
+{
+    forceCoeffs
+    {
+        type            forceCoeffs;             
+        libs ("libforces.so");
+        patches         (sphere);                
+        pName p;
+        UName U;
+        rho     rhoInf;
+        rhoInf    1.225;
+        rho rhoInf;
+        CofR            (0 0 0);                 
+        liftDir         (0 1 0);                 
+        dragDir         (1 0 0);                 
+        pitchAxis       (0 0 1);                 
+        magUInf         10;                      
+        lRef            0.15;                     
+        Aref            0.0707;                
+    }
+       velocityOutput
+    {
+        type            fieldValue;
+        functionObjectLibs ("libfieldFunctionObjects.so");
+        fieldNames      (U);            // 指定需要输出的速度字段
+        operation       patchAverage;   // 针对面求平均速度
+        regionType      patch;          // 设置区域类型为 patch
+        name            sphere;         // 指定区域名称为 sphere
+        writeControl    timeStep;
+        writeInterval   1;              // 设置输出频率
+    }
+}
+
+
+// ************************************************************************* //

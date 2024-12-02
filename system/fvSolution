@@ -1,0 +1,113 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2406                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solvers
+{
+    cellDisplacement
+    {
+        solver          PCG;
+        preconditioner  DIC;
+        tolerance       1e-05;
+        relTol          0;
+        maxIter         100;
+    }
+
+    p
+    {
+        solver          PBiCGStab;
+        preconditioner  DIC;
+        tolerance       1e-4;
+        relTol          0;
+    }
+
+    pFinal
+    {
+        $p;
+        tolerance       1e-4;
+        relTol          0;
+    }
+    U
+    {
+        solver          smoothSolver;
+        smoother        symGaussSeidel;
+        tolerance       1e-4;
+        relTol          0.1;               // 适度松弛提高稳定性
+    }    UFinal
+    {
+        $U;
+        tolerance       1e-4;              // 更严格的收敛标准
+        relTol          0;
+    }
+
+    pcorr
+    {
+        $p;
+        solver          PCG;
+        preconditioner  DIC;
+    }
+        k
+    {
+        solver          smoothSolver;
+        smoother        symGaussSeidel;
+        tolerance       1e-4;              // 对湍流动能的收敛标准
+        relTol          0.1;
+    }
+
+    pcorrFinal
+    {
+        $pcorr;
+        relTol          0;
+    }
+
+    omega
+    {
+        solver          smoothSolver;
+        smoother        symGaussSeidel;
+        tolerance       1e-4;
+        relTol          0;
+    }
+
+    "(k|omega)Final"
+    {
+        $U;
+        tolerance       1e-4;
+        relTol          0;
+    }
+}
+
+PIMPLE
+{
+    momentumPredictor   yes;                 // 启用动量预测器
+    nOuterCorrectors    2;                   // 外层迭代次数
+    nCorrectors         2;                   // 压力修正次数
+    nNonOrthogonalCorrectors 1;              // 非正交修正次数
+    consistent          yes;                 // 使用一致性修正
+}
+
+
+relaxationFactors
+{
+   fields
+   {
+   }
+   equations
+   {
+       ".*"             0.8;
+   }
+}
+
+
+// ************************************************************************* //

@@ -1,0 +1,84 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2406                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      dynamicMeshDict;
+}
+
+dynamicFvMesh   dynamicMotionSolverFvMesh;
+ 
+motionSolverLibs ( "libsixDoFRigidBodyMotion.so" );
+ 
+solver          sixDoFRigidBodyMotion;
+ 
+diffusivity     quadratic inverseDistance 1 (sphere);
+ 
+sixDoFRigidBodyMotionCoeffs
+ {
+     patches         (sphere);
+     innerDistance   10;
+     outerDistance   40;
+     centreOfMass    (0 0 0);
+     mass            0.5;
+     g               (0 -9.8 0);
+     momentOfInertia (9e-3 9e-3 9e-3);
+     velocity        (10 10 0);
+     rho         rhoInf;
+     rhoInf          1.225;
+     accelerationRelaxation 0.9;
+     accelerationDamping 0.95;
+     report          on;
+     reportToFile    on;
+     solver
+     {
+     type    Newmark;
+     gamma   0.5;    // Velocity integration coefficient
+     beta    0.25;   // Position integration coefficient
+     }
+
+constraints
+  {
+  fixedPlane1
+{
+    sixDoFRigidBodyMotionConstraint plane;
+    tolerance           1e-5;                   // 约束公差
+    relaxationFactor    0.8;                    // 松弛因子
+  normal              (0 0 1);                // 定义运动平面 (x-y 平面)
+}
+        fixedAxisX
+        {
+            sixDoFRigidBodyMotionConstraint axis;
+            axis   (1 0 0); // 锁定 x 轴旋转
+        }
+
+        fixedAxisY
+        {
+            sixDoFRigidBodyMotionConstraint axis;
+            axis   (0 1 0); // 锁定 y 轴旋转
+        }
+
+        fixedAxisZ
+        {
+            sixDoFRigidBodyMotionConstraint axis;
+            axis   (0 0 1); // 锁定 z 轴旋转
+        }
+        }
+
+        
+  
+     
+ }
+
+// ************************************************************************* //
+
+
+
+// ************************************************************************* //

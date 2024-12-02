@@ -1,0 +1,38 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2406                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      turbulenceProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+simulationType RAS;
+RAS
+{
+    RASModel        kOmegaSST;;          // RANS 湍流模型名称，可选择其他模型如 kOmegaSST, SpalartAllmaras 等
+    turbulence      on;                // 打开湍流计算
+    printCoeffs     on;                // 输出模型参数
+        kOmegaSSTCoeffs
+    {
+        betaStar    0.09;
+        gamma       0.5532;
+        a1          0.31;
+        beta1       0.075;
+        beta2       0.0828;
+        gamma1      0.5532;
+        gamma2      0.4403;
+        Prt         0.85;}
+    
+
+}
+
+
+// ************************************************************************* //

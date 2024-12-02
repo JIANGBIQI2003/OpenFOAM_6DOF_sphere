@@ -1,0 +1,84 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2406                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      fvSchemes;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+ddtSchemes
+{
+    default         Euler;
+}
+
+gradSchemes
+{
+    default         Gauss linear;
+    grad(T)         Gauss linear;
+    grad(U)         Gauss linear;  // 添加速度梯度计算
+    grad(k)         Gauss linear;  // 添加湍流动能梯度计算
+    grad(epsilon)   Gauss linear;  // 添加湍流耗散率梯度计算
+}
+
+divSchemes
+{
+    default         none;
+    div(phi,U)      Gauss limitedLinearV 1;   // 对速度的对流项
+    div(phi,k)      Gauss limitedLinear 1;    // 对湍流动能的对流项
+    div(phi,epsilon) Gauss limitedLinear 1;   // 对湍流耗散率的对流项
+    div(phi,omega)  Gauss limitedLinear 1;    // 对 k-omega 模型的 omega 项
+    div(phi,nuTilda) Gauss limitedLinear 1;   // 如果使用 Spalart-Allmaras 模型
+    div((nuEff*dev2(T(grad(U))))) Gauss linear; // 黏性剪切应力项
+}
+
+laplacianSchemes
+{
+    default         Gauss linear corrected;
+    laplacian(nuEff,U) Gauss linear corrected;  // 动量方程中的湍流扩散
+    laplacian(DkEff,k) Gauss linear corrected;  // k 方程的扩散项
+    laplacian(DepsilonEff,epsilon) Gauss linear corrected;  // epsilon 方程的扩散项
+    laplacian(diffusivity,cellDisplacement)  Gauss linear corrected;
+}
+
+interpolationSchemes
+{
+    default         linear;
+}
+
+snGradSchemes
+{
+    default         corrected;
+}
+
+oversetInterpolation
+{
+    method              inverseDistance;
+    searchBox           (0 0 0)(0.1 0.1 0.1);
+    searchBoxDivisions  (130 130 1);
+    holeLayers          4;
+    useLayer            2;
+}
+wallDist
+{
+    method          meshWave;   // 或者 inverseDistance
+}
+fluxRequired
+{
+    default         no;
+    pcorr           ;
+    p               ;
+    k               ;  // 添加湍流动能
+    epsilon         ;  // 添加湍流耗散率
+    nuTilda         ;  // 如果使用 k-omega 模型
+}
+
+
+// ************************************************************************* //
